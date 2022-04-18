@@ -39,6 +39,15 @@ export async function findById(id: number) {
   return result.rows[0];
 }
 
+export async function findByNumber(number: string) {
+  const result = await connection.query(
+    "SELECT * FROM cards WHERE number=$1",
+    [number]
+  );
+
+  return result.rows[0];
+}
+
 export async function findByTypeAndEmployeeId(
   type: TransactionTypes,
   employeeId: number
