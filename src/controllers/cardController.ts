@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CardInsertData } from "../repositories/cardRepository";
+import { CardInsertData } from "../repositories/cardRepository.js";
 import * as cardService from "../services/cardService.js";
 
 

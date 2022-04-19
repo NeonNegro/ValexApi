@@ -6,6 +6,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat.js';
 import dayjs from 'dayjs';
 dayjs.extend(customParseFormat);
 import bcrypt from "bcrypt";
+//import { v4 as uuid } from "uuid";
 
 export async function createCard (apiKey: string, employeeId: number, cardType: cardRepository.TransactionTypes){
 
