@@ -71,6 +71,19 @@ export function findById(id) {
         });
     });
 }
+export function findByNumber(number) {
+    return __awaiter(this, void 0, void 0, function () {
+        var result;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, connection.query("SELECT * FROM cards WHERE number=$1", [number])];
+                case 1:
+                    result = _a.sent();
+                    return [2 /*return*/, result.rows[0]];
+            }
+        });
+    });
+}
 export function findByTypeAndEmployeeId(type, employeeId) {
     return __awaiter(this, void 0, void 0, function () {
         var result;
@@ -139,3 +152,4 @@ export function remove(id) {
         });
     });
 }
+//# sourceMappingURL=cardRepository.js.map

@@ -14,7 +14,7 @@ export async function createCard (apiKey: string, employeeId: number, cardType: 
         await validateApiKey(apiKey);
         await ensureUniqueCardTypeByEmployee(cardType, employeeId);
         const cardNumber = faker.finance.creditCardNumber('mastercard');
-        ensureIsMasterCard(cardNumber);
+        //ensureIsMasterCard(cardNumber);
         await ensureCardNumberIsUnique(cardNumber);
 
         const newCard = fillCardFields(employee, cardNumber, cardType);
@@ -40,7 +40,7 @@ function createSecurityCode(){
         return encriptedCVV
 }
 async function getEmployee(employeeId: number){
-        const employee = await employeeRepository.findById(employeeId);
+        const employee: any = await employeeRepository.findById(employeeId);
         if (!employee)
                 throw {message: 'Employee does not exists'};
         return employee
@@ -51,19 +51,19 @@ async function ensureCardNumberIsUnique(cardNumber: string){
                 throw {message: 'Card number already in use'};
 }
 function ensureIsMasterCard(number: string){
-        const regex: RegExp = new RegExp( `^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)[0-9]{0,}$;`);
+        const regex: RegExp = /^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)[0-9]{0,}/;
+        console.log(number);
         if(!regex.test(number))
-                throw {message: 'Not a MasterCard card'};
+                throw { message: 'Not a MasterCard card'};
 }
-async function ensureUniqueCardTypeByEmployee(cardType: string, employeeId: number) {
+async function ensureUniqueCardTypeByEmployee(cardType: cardRepository.TransactionTypes, employeeId: number) {
         const existingCard = await cardRepository.findByTypeAndEmployeeId(cardType, employeeId);
         if (existingCard)
-                throw {message: 'Employee already has a card of this type'};
+                throw { type: 'conflict', message: 'Employee already has a card of this type' };
 }
-
 function fillCardFields(employee: employeeRepository.Employee, cardNumber: string, cardType: cardRepository.TransactionTypes) {
 
-        let cardData: cardRepository.CardInsertData;
+        let cardData = {} as cardRepository.CardInsertData;
 
         cardData.employeeId = employee.id;
         cardData.number = cardNumber;
@@ -81,4 +81,3 @@ async function validateApiKey(apiKey: string) {
         if(!company)
                 throw {message: 'Invalid ApiKey'}
 }
-
