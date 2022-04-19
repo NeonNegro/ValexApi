@@ -1,12 +1,14 @@
 import * as cardRepository from '../repositories/cardRepository.js';
 import * as companyRepository from '../repositories/companyRepository.js';
 import * as employeeRepository from '../repositories/employeeRepository.js';
+import * as paymentRepository from '../repositories/paymentRepository.js';
+import * as rechargeRepository from '../repositories/rechargeRepository.js';
+import { validateApiKey } from './companyService.js';
 import { faker } from '@faker-js/faker';
 import customParseFormat from 'dayjs/plugin/customParseFormat.js';
 import dayjs from 'dayjs';
 dayjs.extend(customParseFormat);
 import bcrypt from "bcrypt";
-//import { v4 as uuid } from "uuid";
 
 export async function createCard (apiKey: string, employeeId: number, cardType: cardRepository.TransactionTypes){
 
@@ -26,7 +28,8 @@ export async function createCard (apiKey: string, employeeId: number, cardType: 
 
 export async function activateCard (cardId: number, cvv: string, password: string){
         const card = await getCard(cardId);
-        ensureIsNotExpired(card.expirationDate);
+
+        ensureCardIsNotExpired(card);
         ensureNotAlreadyActivated(card.password);
         validateCvv(cvv, card.securityCode);
         validateNewPassword(password);
@@ -36,6 +39,19 @@ export async function activateCard (cardId: number, cvv: string, password: strin
 
         cardRepository.update(cardId, card);
 }
+
+export async function getBalanceAndTransactions(cardId: number){
+        const card = await getCard(cardId);
+        const transactions = await paymentRepository.findByCardId(cardId);
+        const recharges = await rechargeRepository.findByCardId(cardId);
+        const totalPayments = transactions.reduce((sum, t)=>sum + t.amount,0);
+        const totalRecharges = recharges.reduce((sum, r)=>sum + r.amount,0);
+        const balance = totalRecharges-totalPayments;
+
+        return { balance, transactions, recharges }
+}
+
+
 
 function createCardName(employeeFullName: string){
         let subNames = employeeFullName.split(' ');
@@ -61,18 +77,22 @@ async function getEmployee(employeeId: number){
                 throw {message: 'Employee does not exists'};
         return employee
 }
-async function getCard(cardId: number){
+export async function getCard(cardId: number){
         const card = await cardRepository.findById(cardId);
         if (!card)
                 throw {type: 'not_found', message: 'Card not found'};
         return card
+}
+export async function ensureCardExists(cardId: number){
+        const card = await getCard(cardId);
 }
 async function ensureCardNumberIsUnique(cardNumber: string){
         const existingCard = await cardRepository.findByNumber(cardNumber);
         if (existingCard)
                 throw {message: 'Card number already in use'};
 }
-function ensureIsNotExpired(expirationDate: string){
+export function ensureCardIsNotExpired(card: cardRepository.Card){
+        const expirationDate = card.expirationDate;
         const today = dayjs();
         const expirationDateDayJS = dayjs(expirationDate,'MM/YY');
         if(today.isAfter(expirationDateDayJS))
@@ -110,11 +130,6 @@ function fillCardFields(employee: employeeRepository.Employee, cardNumber: strin
         cardData.type = cardType;
 
         return cardData
-}
-async function validateApiKey(apiKey: string) {
-        const company = await companyRepository.findByApiKey(apiKey);
-        if(!company)
-                throw {message: 'Invalid ApiKey'}
 }
 
 
