@@ -26,8 +26,8 @@ export async function createCard (apiKey: string, employeeId: number, cardType: 
 
 export async function activateCard (cardId: number, cvv: string, password: string){
         const card = await getCard(cardId);
-        await ensureIsNotExpired(card.expirationDate);
-        await ensureNotAlreadyActivated(card.password);
+        ensureIsNotExpired(card.expirationDate);
+        ensureNotAlreadyActivated(card.password);
         validateCvv(cvv, card.securityCode);
         validateNewPassword(password);
 
@@ -72,22 +72,22 @@ async function ensureCardNumberIsUnique(cardNumber: string){
         if (existingCard)
                 throw {message: 'Card number already in use'};
 }
-async function ensureIsNotExpired(expirationDate: string){
+function ensureIsNotExpired(expirationDate: string){
         const today = dayjs();
         const expirationDateDayJS = dayjs(expirationDate,'MM/YY');
         if(today.isAfter(expirationDateDayJS))
                 throw { type: 'conflict', message: 'Expired Card' };
 }
-async function validateCvv(cvv: string, encriptedCVV: string){
+function validateCvv(cvv: string, encriptedCVV: string){
         if (!bcrypt.compareSync(cvv, encriptedCVV))
                 throw { type: 'conflict', message: 'Wrong CVV' };
 }
-async function validateNewPassword(newPassword: string){
+function validateNewPassword(newPassword: string){
         const reg = /^[0-9]{4}$/;
         if(!reg.test(newPassword))
                 throw { type: 'conflict', message: 'The Password should be a 4 digits number only one' };       
 }       
-async function ensureNotAlreadyActivated(password: string){
+function ensureNotAlreadyActivated(password: string){
         if(password !== null && password !== undefined)
                 throw { type: 'conflict', message: 'Card already activated' };
 }
