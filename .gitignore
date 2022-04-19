@@ -2,3 +2,4 @@
 /src/valex
 .env
 .vscode
+/dist
