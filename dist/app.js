@@ -1,8 +1,11 @@
 import express, { json } from 'express';
+import 'express-async-errors';
 import cors from 'cors';
+import router from './routers/index.js';
 var app = express();
 app.use(json());
 app.use(cors());
+app.use(router);
 var port = process.env.PORT || 5000;
 app.listen(port, function () {
     console.log("Listening to port ".concat(port));
@@ -60,3 +63,4 @@ app.listen(port, function () {
 //     const existingUser = await userRepository.findByEmail(email);
 // 	if(existingUser) throw 'Duplicate Email';
 // }
+//# sourceMappingURL=app.js.map

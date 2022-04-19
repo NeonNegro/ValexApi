@@ -34,18 +34,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-import { connection } from "../database.js";
-export function findById(id) {
+import * as cardService from "../services/cardService.js";
+export function createCard(req, res) {
     return __awaiter(this, void 0, void 0, function () {
-        var result;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, connection.query("SELECT * FROM employees WHERE id=$1", [id])];
+        var _a, employeeId, cardType, apiKey;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _a = req.body, employeeId = _a.employeeId, cardType = _a.cardType;
+                    apiKey = req.header('x-api-key');
+                    return [4 /*yield*/, cardService.createCard(apiKey, employeeId, cardType)];
                 case 1:
-                    result = _a.sent();
-                    return [2 /*return*/, result.rows[0]];
+                    _b.sent();
+                    res.sendStatus(201);
+                    return [2 /*return*/];
             }
         });
     });
 }
-//# sourceMappingURL=employeeRepository.js.map
+//createCard
+//# sourceMappingURL=cardController.js.map

@@ -48,3 +48,4 @@ export function findByApiKey(apiKey) {
         });
     });
 }
+//# sourceMappingURL=companyRepository.js.map
