@@ -86,6 +86,11 @@ export async function getCard(cardId: number){
 export async function ensureCardExists(cardId: number){
         const card = await getCard(cardId);
 }
+export async function ensureSuficientBalance(cardId: number, amountToSpend: number){
+        const {balance} = await getBalanceAndTransactions(cardId);
+        if(amountToSpend > balance)
+                throw { type: 'conflict', message: 'Insuficient Balance' };
+}
 async function ensureCardNumberIsUnique(cardNumber: string){
         const existingCard = await cardRepository.findByNumber(cardNumber);
         if (existingCard)
@@ -101,6 +106,10 @@ export function ensureCardIsNotExpired(card: cardRepository.Card){
 function validateCvv(cvv: string, encriptedCVV: string){
         if (!bcrypt.compareSync(cvv, encriptedCVV))
                 throw { type: 'conflict', message: 'Wrong CVV' };
+}
+export function validatePassword(password: string, encriptedPassword: string){
+        if (!bcrypt.compareSync(password, encriptedPassword))
+                throw { type: 'conflict', message: 'Wrong pasword' };
 }
 function validateNewPassword(newPassword: string){
         const reg = /^[0-9]{4}$/;
